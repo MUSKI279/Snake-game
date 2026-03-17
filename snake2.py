@@ -25,6 +25,15 @@ direction = (tile_size,0)
 
 run = True 
 
+
+def death():
+    screen.fill("black")
+    gameOverTekst = big_font.render("Game Over", True, "green", "black")
+    rect = gameOverTekst.get_rect(center=(WIDTH//2, HEIGHT//2))
+    screen.blit(gameOverTekst, (WIDTH/2, HEIGHT/2))
+
+
+
 while run:
     timer.tick(fps)
     screen.fill("black")
@@ -34,17 +43,18 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False 
+
     for x in range (0, WIDTH, tile_size):
         pygame.draw.line(screen, "dark green", (x,0),(x,HEIGHT))
     for y in range (0,HEIGHT, tile_size):
         pygame.draw.line(screen, "dark green", (0,y),(WIDTH,y))
     for x, y in snake:
         pygame.draw.rect(screen, "lime", (x*tile_size, y*tile_size, tile_size, tile_size),border_radius=12)
+
+    death()
     
     pygame.display.flip()  # Opdater skærmen
 
 pygame.quit()  # Skal være uden for løkken
-
-
 
 

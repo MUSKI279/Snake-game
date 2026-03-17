@@ -44,4 +44,3 @@ pygame.quit()  # Skal være uden for løkken
 
 
 
-
