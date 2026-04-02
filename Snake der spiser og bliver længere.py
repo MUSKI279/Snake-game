@@ -91,7 +91,7 @@ while run:
         snake.insert(0,new_head)
         fruit = CREATETHEREDDOTFORHELVEDE()
     
-    # DIE IF SNAKE EATS ITSELF
+    # DIE IF SNAKE EATS ITSELF (VIRKER IKKE ENDNU)
     if new_head == (snake):
         alive = False
 
