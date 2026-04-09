@@ -14,7 +14,7 @@ title = "Snake game"
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption(title)
 font = pygame.font.Font("freesansbold.ttf", 20)
-big_font = pygame.font.Font("freesansbold.ttf", 25)
+big_font = pygame.font.Font("freesansbold.ttf", 50)
 timer = pygame.time.Clock()
 fps = 7
 
@@ -33,8 +33,8 @@ def death():
     restart_rect = pygame.draw.rect(screen, "red", button)
     screen.blit(restartTekst, (180, 300))
 
-    #if button.collidepoint(mousePos) and event.type == pygame.MOUSEBUTTONDOWN:
-        #print("skibidi button works")
+    if button.collidepoint(mousePos) and event.type == pygame.MOUSEBUTTONDOWN:
+        print("skibidi button works")
 
 run = True 
 alive = True
@@ -58,6 +58,8 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+
+        mousePos = pygame.mouse.get_pos()
 
         if event.type == pygame.KEYDOWN and alive:
             if (event.key == pygame.K_UP or event.key == pygame.K_w) and direction != (0,1):
