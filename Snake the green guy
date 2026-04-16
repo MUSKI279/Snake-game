@@ -13,7 +13,7 @@ title = "Snake game"
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption(title)
 font = pygame.font.Font("freesansbold.ttf", 20)
-big_font = pygame.font.Font("freesansbold.ttf", 25)
+big_font = pygame.font.Font("freesansbold.ttf", 28)
 timer = pygame.time.Clock()
 fps = 7
 
@@ -35,11 +35,13 @@ fruit = create_fruit()
 
 run = True
 alive = True
+started = False
 
 def death():
     screen.fill("black")
-    game_over_text = big_font.render("Game Over", True, "green", "blue")
-    screen.blit(game_over_text, (WIDTH // 2 - 120, HEIGHT // 2 - 80))
+    game_over_text = big_font.render("Game Over", True, "black", "red")
+    game_over_rect = game_over_text.get_rect(center=(WIDTH//2, HEIGHT //2 -80))
+    screen.blit(game_over_text, game_over_rect)
 
     restart_text = font.render("Click to Restart", True, "white")
     button = pygame.Rect(180, 300, 280, 50)
@@ -47,17 +49,19 @@ def death():
     screen.blit(restart_text, (190, 310))
 
     score_text = font.render(f"Score: {score}  High Score: {high_score}", True, "white")
-    screen.blit(score_text, (WIDTH // 2 - 100, HEIGHT // 2 + 50))
+    screen.blit(score_text, (WIDTH // 2 - 100, HEIGHT // 2 + 70))
 
     return button
 
 def reset_game():
-    global snake, direction, fruit, alive, score
+    global snake, direction, fruit, alive, score, started
     snake = [(4, 7), (3, 7), (2, 7)]
     direction = (1, 0)
     fruit = create_fruit()
     alive = True
     score = 0
+    started = True
+
 
 while run:
     timer.tick(fps)
@@ -66,6 +70,7 @@ while run:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             run = False
+        
 
         if event.type == pygame.KEYDOWN and alive:
             if (event.key == pygame.K_UP or event.key == pygame.K_w) and direction != (0, 1):
@@ -82,55 +87,73 @@ while run:
             button = death()
             if button.collidepoint(mouse_pos):
                 reset_game()
+        
+        if started == False and event.type == pygame.MOUSEBUTTONDOWN:
+            mouse_pos = pygame.mouse.get_pos()
+            startButton = death()
+            if startButton.collidepoint(mouse_pos):
+                reset_game()
 
-    # MOVE SNAKE
-    if alive:
-        head_x, head_y = snake[0]
-        new_head = (head_x + direction[0], head_y + direction[1])
 
-        # CHECK BORDER
-        if new_head[0] < 0 or new_head[0] >= WIDTH // tile_size or \
-           new_head[1] < 0 or new_head[1] >= HEIGHT // tile_size:
-            alive = False
-        else:
-            snake.insert(0, new_head)
+    if started == False:
+        snakeText = big_font.render("Snake Game", True, "green", "black")
+        screen.blit(snakeText, (WIDTH // 2 -75, HEIGHT // 2 - 120))
 
-            # CHECK SELF COLLISION
-            if new_head in snake[1:]:
+        start_text = font.render("Start game", True, "white")
+        startButton = pygame.Rect(180, 300, 280, 50)
+        pygame.draw.rect(screen, "dark green", startButton)
+        game_start_rec = start_text.get_rect(center=(310, 320))
+        screen.blit(start_text, game_start_rec)
+
+    else:
+           # MOVE SNAKE
+        if alive:
+            head_x, head_y = snake[0]
+            new_head = (head_x + direction[0], head_y + direction[1])
+
+            # CHECK BORDER
+            if new_head[0] < 0 or new_head[0] >= WIDTH // tile_size or \
+            new_head[1] < 0 or new_head[1] >= HEIGHT // tile_size:
                 alive = False
             else:
-                # GROW SNAKE IF EATS FRUIT
-                if new_head == fruit:
-                    score += 1
-                    if score > high_score:
-                        high_score = score
-                    fruit = create_fruit()
-                    # Don't pop the tail, so snake grows
+                snake.insert(0, new_head)
+
+                # CHECK SELF COLLISION
+                if new_head in snake[1:]:
+                    alive = False
                 else:
-                    snake.pop()
+                    # GROW SNAKE IF EATS FRUIT
+                    if new_head == fruit:
+                        score += 1
+                        if score > high_score:
+                            high_score = score
+                        fruit = create_fruit()
+                        # Don't pop the tail, so snake grows
+                    else:
+                        snake.pop()
 
-        # GENERATE FRUIT
-        pygame.draw.rect(
-            screen, "red",
-            (fruit[0] * tile_size, fruit[1] * tile_size, tile_size, tile_size), border_radius=12)
+            # GENERATE FRUIT
+            pygame.draw.rect(
+                screen, "red",
+                (fruit[0] * tile_size, fruit[1] * tile_size, tile_size, tile_size), border_radius=12)
 
-    # DRAW GRID
-    for x in range(0, WIDTH, tile_size):
-        pygame.draw.line(screen, "dark green", (x, 0), (x, HEIGHT))
-    for y in range(0, HEIGHT, tile_size):
-        pygame.draw.line(screen, "dark green", (0, y), (WIDTH, y))
+        # DRAW GRID
+        for x in range(0, WIDTH, tile_size):
+            pygame.draw.line(screen, "dark green", (x, 0), (x, HEIGHT))
+        for y in range(0, HEIGHT, tile_size):
+            pygame.draw.line(screen, "dark green", (0, y), (WIDTH, y))
 
-    # DRAW SNAKE
-    for x, y in snake:
-        pygame.draw.rect(screen, "lime", (x * tile_size, y * tile_size, tile_size, tile_size), border_radius=12)
+        # DRAW SNAKE
+        for x, y in snake:
+            pygame.draw.rect(screen, "lime", (x * tile_size, y * tile_size, tile_size, tile_size), border_radius=12)
 
-    # DRAW SCORE
-    score_text = font.render(f"Score: {score}", True, "white")
-    screen.blit(score_text, (10, 10))
+        # DRAW SCORE
+        score_text = font.render(f"Score: {score}", True, "white")
+        screen.blit(score_text, (10, 10))
 
-    if not alive:
-        death()
-
+        if not alive:
+            death()
+    
     pygame.display.flip()
 
 pygame.quit()

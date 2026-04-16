@@ -14,7 +14,7 @@ title = "Snake game"
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption(title)
 font = pygame.font.Font("freesansbold.ttf", 20)
-big_font = pygame.font.Font("freesansbold.ttf", 40)
+big_font = pygame.font.Font("freesansbold.ttf", 50)
 timer = pygame.time.Clock()
 fps = 7
 
