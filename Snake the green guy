@@ -13,7 +13,7 @@ title = "Snake game"
 screen = pygame.display.set_mode([WIDTH, HEIGHT])
 pygame.display.set_caption(title)
 font = pygame.font.Font("freesansbold.ttf", 20)
-big_font = pygame.font.Font("freesansbold.ttf", 28)
+big_font = pygame.font.Font("freesansbold.ttf", 35)
 timer = pygame.time.Clock()
 fps = 7
 
@@ -37,9 +37,13 @@ run = True
 alive = True
 started = False
 
+
+# skaber dødskærm
+
 def death():
+
     screen.fill("black")
-    game_over_text = big_font.render("Game Over", True, "black", "red")
+    game_over_text = big_font.render("Game Over", True, "crimson", "black")
     game_over_rect = game_over_text.get_rect(center=(WIDTH//2, HEIGHT //2 -80))
     screen.blit(game_over_text, game_over_rect)
 
@@ -82,22 +86,24 @@ while run:
             if (event.key == pygame.K_RIGHT or event.key == pygame.K_d) and direction != (-1, 0):
                 direction = (1, 0)
 
+
+        mouse_pos = pygame.mouse.get_pos()
         if not alive and event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
+
             button = death()
             if button.collidepoint(mouse_pos):
                 reset_game()
         
         if started == False and event.type == pygame.MOUSEBUTTONDOWN:
-            mouse_pos = pygame.mouse.get_pos()
-            startButton = death()
+
             if startButton.collidepoint(mouse_pos):
                 reset_game()
 
 
     if started == False:
         snakeText = big_font.render("Snake Game", True, "green", "black")
-        screen.blit(snakeText, (WIDTH // 2 -75, HEIGHT // 2 - 120))
+        snakeTextPosition = snakeText.get_rect(center=(WIDTH // 2 , HEIGHT // 2 - 80))
+        screen.blit(snakeText, snakeTextPosition)
 
         start_text = font.render("Start game", True, "white")
         startButton = pygame.Rect(180, 300, 280, 50)
