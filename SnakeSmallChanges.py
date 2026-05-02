@@ -18,10 +18,17 @@ timer = pygame.time.Clock()
 
 fps = 7
 level = 0
+numberOfBombs = 3
 
 tile_size = 40
 snake = [(4, 7), (3, 7), (2, 7)]
 direction = (1, 0)
+
+
+
+head_x, head_y = snake[0]
+new_head = (head_x + direction[0], head_y + direction[1])
+
 
 def create_fruit():
     while True:
@@ -31,6 +38,30 @@ def create_fruit():
             return fruit_pos
 
 fruit = create_fruit()
+
+def create_bomb(amountOfBombs):
+    while True:
+
+        nonBombArea = [
+            (x, y)
+            for x in range(head_x - 3, head_x + 4)
+            for y in range(head_y - 3, head_y + 4)
+        ]
+
+        allBomb_pos = []
+        for i in range(amountOfBombs):
+
+            bomb_pos = (random.randrange(0, WIDTH // tile_size),
+                        random.randrange(0, HEIGHT // tile_size))
+            
+            if bomb_pos not in snake and bomb_pos != fruit and bomb_pos not in allBomb_pos and bomb_pos not in nonBombArea:
+                allBomb_pos.append(bomb_pos)
+        
+        if len(allBomb_pos) == amountOfBombs:
+            return allBomb_pos
+
+
+
 
 run = True
 alive = True
@@ -121,6 +152,7 @@ def reset_game():
     level = 0
 
 
+
 def update_fps():
     global fps, level, difficulty
 
@@ -132,6 +164,26 @@ def update_fps():
         fps = 7 + (level * 3)
     elif difficulty == "hard":
         fps = min(30, 7 + level * 2)
+
+
+
+def update_bombs():
+    global numberOfBombs, level, difficulty
+
+    level = score // 4
+
+    if difficulty == "easy":
+        numberOfBombs = 3
+    elif difficulty == "normal":
+        numberOfBombs =  5 + (level * 3)
+    elif difficulty == "hard":
+        numberOfBombs = 8 + (level * 5)
+    return numberOfBombs
+    
+
+
+
+bombs = create_bomb(numberOfBombs)
 
 
 def move_snake(snake, direction):
@@ -166,11 +218,21 @@ def draw_level(level):
     screen.blit(level_text, (10, 40))
 
 
+def draw_bombs(bombs):
+    for x, y in bombs:
+                pygame.draw.rect(
+                    screen, "darkgrey",
+                    (x * tile_size, y * tile_size, tile_size, tile_size), border_radius=12)
+
+
+
+
 game_over_buttons = {}
 
 while run:
     timer.tick(fps)
     screen.fill("black")
+    update_bombs()
 
     if start_screen:
         choice = start_menu()
@@ -221,6 +283,9 @@ while run:
 
         elif new_head in snake:
             alive = False
+        
+        elif new_head in bombs:
+            alive = False
             
         else:
             snake.insert(0, new_head)
@@ -229,13 +294,16 @@ while run:
                 if score > high_score:
                     high_score = score
                 fruit = create_fruit()
+                bombs = create_bomb(numberOfBombs)
                 update_fps()
+                update_bombs()
             else:
                 snake.pop()
 
         draw_grid()
         draw_snake(snake)
         draw_fruit(fruit)
+        draw_bombs(bombs)
         draw_level(level)
 
         score_text = font.render(f"Score: {score}", True, "white")

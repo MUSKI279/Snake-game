@@ -16,7 +16,7 @@ font = pygame.font.Font("freesansbold.ttf", 20)
 big_font = pygame.font.Font("freesansbold.ttf", 35)
 timer = pygame.time.Clock()
 fps = 7
-numberOfBombs = 10
+numberOfBombs = 3
 
 tile_size = 40
 snake=[(4,7),(3,7),(2,7)]
