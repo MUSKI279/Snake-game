@@ -16,10 +16,15 @@ font = pygame.font.Font("freesansbold.ttf", 20)
 big_font = pygame.font.Font("freesansbold.ttf", 35)
 timer = pygame.time.Clock()
 fps = 7
+numberOfBombs = 10
 
 tile_size = 40
 snake=[(4,7),(3,7),(2,7)]
 direction = (1,0)
+
+head_x, head_y = snake[0]
+new_head = (head_x + direction[0], head_y + direction[1])
+
 
 # RANDOM FRUIT GENERATION
 def create_fruit():
@@ -31,17 +36,28 @@ def create_fruit():
         if fruit_pos not in snake:
             return fruit_pos
 
-fruit = create_fruit()
 
 def create_bomb():
     while True:
-        bomb_pos = (random.randrange(0, WIDTH // tile_size),
-                    random.randrange(0, HEIGHT // tile_size))
+
+        nonBombArea = [
+            (x, y)
+            for x in range(head_x - 3, head_x + 4)
+            for y in range(head_y - 3, head_y + 4)
+        ]
+
+        allBomb_pos = []
+        for i in range(numberOfBombs):
+
+            bomb_pos = (random.randrange(0, WIDTH // tile_size),
+                        random.randrange(0, HEIGHT // tile_size))
+            
+            if bomb_pos not in snake and bomb_pos != fruit and bomb_pos not in allBomb_pos and bomb_pos not in nonBombArea:
+                allBomb_pos.append(bomb_pos)
         
-        if bomb_pos not in snake and fruit:
-            return bomb_pos
+        if len(allBomb_pos) == numberOfBombs:
+            return allBomb_pos
         
-bomb = create_bomb()
 
 run = True
 alive = True
@@ -68,13 +84,15 @@ def death():
     return button
 
 def reset_game():
-    global snake, direction, fruit, alive, score, started
+    global snake, direction, fruit, alive, score, started, bomb
     snake = [(4, 7), (3, 7), (2, 7)]
     direction = (1, 0)
     fruit = create_fruit()
+    bomb = create_bomb()
     alive = True
     score = 0
     started = True
+
 
 
 while run:
@@ -141,7 +159,7 @@ while run:
                     alive = False
                 else:
                 # DIE IF SNAKE HITS BOMB
-                    if new_head == bomb:
+                    if new_head in bomb:
                         alive = False
                 
                     else:
@@ -151,6 +169,8 @@ while run:
                             if score > high_score:
                                 high_score = score
                             fruit = create_fruit()
+                            bomb = create_bomb()
+
                    
                         else:
                             snake.pop()
@@ -160,10 +180,11 @@ while run:
                 screen, "red",
                 (fruit[0] * tile_size, fruit[1] * tile_size, tile_size, tile_size), border_radius=12)
             
-            # GENERATE BOMB
-            pygame.draw.rect(
-                screen, "darkgrey",
-                (bomb[0] * tile_size, bomb[1] * tile_size, tile_size, tile_size), border_radius=12)
+            # GENERATE BOMBs
+            for i in range(numberOfBombs):
+                pygame.draw.rect(
+                    screen, "darkgrey",
+                    (bomb[i][0] * tile_size, bomb[i][1] * tile_size, tile_size, tile_size), border_radius=12)
 
         # DRAW GRID
         for x in range(0, WIDTH, tile_size):
