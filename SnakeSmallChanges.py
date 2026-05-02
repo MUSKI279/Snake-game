@@ -153,6 +153,7 @@ def reset_game():
 
 
 
+
 def update_fps():
     global fps, level, difficulty
 
@@ -175,9 +176,9 @@ def update_bombs():
     if difficulty == "easy":
         numberOfBombs = 3
     elif difficulty == "normal":
-        numberOfBombs =  5 + (level * 3)
+        numberOfBombs =  3 + (level * 3)
     elif difficulty == "hard":
-        numberOfBombs = 8 + (level * 5)
+        numberOfBombs = 3 + (level * 5)
     return numberOfBombs
     
 
