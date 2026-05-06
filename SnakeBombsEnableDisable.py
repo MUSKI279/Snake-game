@@ -24,8 +24,7 @@ tile_size = 40
 snake = [(4, 7), (3, 7), (2, 7)]
 direction = (1, 0)
 
-head_x, head_y = snake[0]
-new_head = (head_x + direction[0], head_y + direction[1])
+
 
 
 def create_fruit():
@@ -37,12 +36,15 @@ def create_fruit():
 
 fruit = create_fruit()
 
-def create_bomb(amountOfBombs):
+def create_bomb(amountOfBombs, snakeBody):
+
+    head_x, head_y = snakeBody[0]
+
     while True:
         nonBombArea = [
             (x, y)
-            for x in range(head_x - 3, head_x + 4)
-            for y in range(head_y - 3, head_y + 4)
+            for x in range(head_x - 3, head_x + 4 )
+            for y in range(head_y - 3, head_y + 4 )
         ]
 
         allBomb_pos = []
@@ -104,7 +106,8 @@ def start_menu():
                 return "hard"
             if bombs_btn.collidepoint(mouse_pos):
                 bombsEnabled = not bombsEnabled
-                bombs = create_bomb(numberOfBombs) if bombsEnabled else[]
+                update_bombs()
+                bombs = create_bomb(numberOfBombs, snake) if bombsEnabled else[]
 
     pygame.display.flip()    
 
@@ -124,14 +127,20 @@ def death():
     easy_btn = pygame.Rect(100, 300, 120, 50)
     normal_btn = pygame.Rect(240, 300, 120, 50)
     hard_btn = pygame.Rect(380, 300, 120, 50)
+    bombs_btn = pygame.Rect(220, 400, 160, 50)
 
     pygame.draw.rect(screen, "green", easy_btn)
     pygame.draw.rect(screen, "yellow", normal_btn)
     pygame.draw.rect(screen, "red", hard_btn)
+    pygame.draw.rect(screen, "blue", bombs_btn)
+
 
     screen.blit(font.render("Easy", True, "black"), (easy_btn.x + 30, easy_btn.y + 15))
     screen.blit(font.render("Normal", True, "black"), (normal_btn.x + 15, normal_btn.y + 15))
     screen.blit(font.render("Hard", True, "black"), (hard_btn.x + 30, hard_btn.y + 15))
+
+    text = "Bombs are ON" if bombsEnabled else "Bombs are OFF"
+    screen.blit(font.render(text, True, "white"),(bombs_btn.x + 5, bombs_btn.y + 15))
 
     score_text = font.render(f"Score: {score}  High Score: {high_score}", True, "white")
     score_rect = score_text.get_rect(center=(WIDTH // 2, HEIGHT // 2 + 70))
@@ -140,18 +149,23 @@ def death():
     level_text = font.render(f"Level: {level}", True, "white")
     screen.blit(level_text, (10, 40))
 
-    return {"easy": easy_btn, "normal": normal_btn, "hard": hard_btn}
+    
+
+    return {"easy": easy_btn, "normal": normal_btn, "hard": hard_btn, "bombs": bombs_btn}
 
 
 def reset_game():
-    global snake, direction, fruit, alive, score, fps, level
+    global snake, direction, fruit, alive, score, fps, level, bombs
     snake = [(4, 7), (3, 7), (2, 7)]
     direction = (1, 0)
     fruit = create_fruit()
-    alive = True
     score = 0
-    fps = 7
     level = 0
+    update_bombs()
+    bombs = create_bomb(numberOfBombs, snake)
+    fps = 7
+    alive = True
+
 
 def update_fps():
     global fps, level, difficulty
@@ -173,12 +187,13 @@ def update_bombs():
     if difficulty == "easy":
         numberOfBombs = 3
     elif difficulty == "normal":
-        numberOfBombs =  3 + (level * 1)
+        numberOfBombs =  min(20, 3 + (level * 1))
     elif difficulty == "hard":
-        numberOfBombs = 3 + (level * 2)
+        numberOfBombs = min(20, 3 + (level * 2))
     return numberOfBombs
-    
-bombs = create_bomb(numberOfBombs) if bombsEnabled else []
+
+update_bombs() 
+bombs = create_bomb(numberOfBombs, snake) if bombsEnabled else []
 
 def move_snake(snake, direction):
     head_x, head_y = snake[0]
@@ -219,7 +234,7 @@ game_over_buttons = {}
 while run:
     timer.tick(fps)
     screen.fill("black")
-    update_bombs()
+
 
     if start_screen:
         choice = start_menu()
@@ -255,10 +270,16 @@ while run:
         if not alive and event.type == pygame.MOUSEBUTTONDOWN:
             mouse_pos = pygame.mouse.get_pos()
             for choice, button in game_over_buttons.items():
+
                 if button.collidepoint(mouse_pos):
-                    difficulty = choice
-                    reset_game()
-                    break
+
+                    if choice == "bombs":
+                        bombsEnabled = not bombsEnabled
+
+                    else:
+                        difficulty = choice
+                        reset_game()
+                        break
 
     if alive:
         new_head = move_snake(snake, direction)
@@ -283,7 +304,8 @@ while run:
                 fruit = create_fruit()
                 
                 if bombsEnabled:
-                    bombs = create_bomb(numberOfBombs)
+                    update_bombs()
+                    bombs = create_bomb(numberOfBombs, snake)
                 else:
                     bombs = []
                 update_fps()
