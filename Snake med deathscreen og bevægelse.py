@@ -34,7 +34,7 @@ def death():
     screen.blit(restartTekst, (180, 300))
 
     if button.collidepoint(mousePos) and event.type == pygame.MOUSEBUTTONDOWN:
-        print("skibidi button works")
+        print("Det virker")
 
 run = True 
 alive = True
